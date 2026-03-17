@@ -1,9 +1,9 @@
 import './scss/styles.scss';
 
-import { CatalogModel } from './components/base/Models/CatalogModel';
-import { CartModel } from './components/base/Models/CartModel';
-import { BuyerModel } from './components/base/Models/BuyerModel';
-import { ServerClass} from './components/base/Models/ServerClass';
+import { CatalogModel } from './components/Models/CatalogModel';
+import { CartModel } from './components/Models/CartModel';
+import { BuyerModel } from './components/Models/BuyerModel';
+import { ServerClass} from './components/Models/ServerClass';
 import { Api } from './components/base/Api';
 import { apiProducts } from './utils/data';
 import { API_URL } from './utils/constants'
@@ -42,9 +42,13 @@ buyer.clear();
 console.log('Данные покупателя после очистки:', buyer.getData());
 
 async function loadProducts() {
-  const data = await server.fetchProducts()
-  catalog.setProducts(data.items)
-  console.log('Каталог:', catalog.getProducts())
+  try {
+    const data = await server.fetchProducts();
+    catalog.setProducts(data.items);
+    console.log('Каталог:', catalog.getProducts());
+  } catch (error) {
+    console.error('Ошибка при загрузке товаров с сервера:', error);
+  }
 }
 
 loadProducts()

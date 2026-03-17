@@ -13,10 +13,8 @@ export class CartModel {
   }
 
   addProduct(product: IProduct): void {
-    const exists = this.items.some(item => item.id === product.id);
-
-    if (!exists) {
-      this.items.push(product);
+    if (!this.hasProduct(product.id)) {
+        this.items.push(product);
     }
   }
 
