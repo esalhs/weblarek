@@ -348,6 +348,9 @@ interface IBuyer {
 `setButtonState(inCart: boolean, hasPrice: boolean): void`
 Обновляет состояние кнопки в зависимости от наличия товара в корзине и наличия цены (`card:add`, `card:remove`).
 
+`handleButtonClick(): void`
+Генерирует событие добавления или удаления из корзины в зависимости от наличия товара в коризне (`card:add`, `card:remove`).
+
 
 ### Класс CardBasket
 Отрисовка карточки в корзине.

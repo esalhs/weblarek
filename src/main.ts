@@ -6,7 +6,7 @@ import { BuyerModel } from './components/Models/BuyerModel';
 import { ServerClass} from './components/Models/ServerClass';
 import { Api } from './components/base/Api';
 import { apiProducts } from './utils/data';
-import { API_URL } from './utils/constants'
+import { API_URL } from './utils/constants';
 
 const catalog = new CatalogModel();
 const cart = new CartModel();
