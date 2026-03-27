@@ -25,10 +25,7 @@ export class OrderForm extends Form<IOrderForm> {
 
   set payment(method: TPayment) {
     this.paymentButtons.forEach((button) => {
-      button.classList.remove('button_alt-active');
-      if (button.name === method) {
-        button.classList.add('button_alt-active')
-      }
+      button.classList.toggle('button_alt-active', button.name === method);
     })
   }
 
@@ -37,13 +34,6 @@ export class OrderForm extends Form<IOrderForm> {
   }
 
   selectPayment(method: TPayment): void {
-    this.paymentButtons.forEach(button => {
-      button.classList.remove('button_alt-active');
-      if (button.name === method) {
-        button.classList.add('button_alt-active')
-      }
-    }
-  )
     this.events.emit('order:change', {payment: method});
   }
 

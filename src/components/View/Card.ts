@@ -4,7 +4,6 @@ import { Component } from "../base/Component";
 export interface ICard {
   title: string;
   price: number | null;
-  id: string
 }
 
 export class Card<T extends ICard> extends Component<T> {
@@ -30,8 +29,4 @@ export class Card<T extends ICard> extends Component<T> {
       this.priceElement.textContent = 'Бесценно'
     }
   }
-
-  set id(value: string) {
-    this.container.dataset.id = value;
-  } 
 }

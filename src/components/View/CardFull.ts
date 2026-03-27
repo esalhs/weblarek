@@ -1,5 +1,4 @@
 import { ensureElement } from "../../utils/utils";
-import { IEvents } from "../base/Events";
 import { Card, ICard } from "./Card";
 import { categoryMap } from "../../utils/constants";
 
@@ -15,7 +14,7 @@ export class CardFull extends Card<ICardFull> {
   protected descriptionElement: HTMLElement;
   protected cardButtonElement: HTMLButtonElement;
 
-  constructor(protected events: IEvents, container: HTMLElement) {
+  constructor(container: HTMLElement, protected onAction: () => void) {
     super(container);
 
     this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.container);
@@ -61,17 +60,6 @@ export class CardFull extends Card<ICardFull> {
   }
 
   handleButtonClick(): void {
-    const id = this.container.dataset.id;
-    if (!id) {
-      return;
-    }
-
-    const inCart = this.container.dataset.inCart === 'true';
-
-    if (inCart) {
-      this.events.emit('card:remove', { id })
-    } else {
-      this.events.emit('card:add', { id })
-    }
+    this.onAction();
   }
 }

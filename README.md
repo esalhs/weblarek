@@ -304,16 +304,13 @@ interface IBuyer {
 `set price(value: number | null): void`
 Устанавливает цену товара. 
 
-`set id(value: string)`
-Устанавливает идентификатор товара.
-
 
 ### Класс CardCatalog
 Отрисовка карточки на главной странице, наследуется от класса Cards.
 
 #### Конструктор
-`constructor(events: IEvents, container: HTMLElement)`  
-Принимает объект событий для генерации событий и DOM-элемент карточки.
+`constructor(container: HTMLElement, onClick: () => void)`  
+Принимает callback функцию клика на карточку и DOM-элемент карточки.
 
 #### Поля
 `imageElement: HTMLImageElement`
@@ -329,16 +326,13 @@ interface IBuyer {
 `set category(value: string): void`
 Устанавливает категорию товара и применяет соответствующий CSS-класс.
 
-`handleClick(): void`
-Генерирует событие открытия карточки (`card:open`).
-
 
 ### Класс CardFull
 Отрисовка полной информации о карточке.
 
 #### Конструктор
-`constructor(events: IEvents, container: HTMLElement)`
-Принимает объект для генерации событий и DOM элемент карточки.
+`constructor(container: HTMLElement, protected onAdd: () => void, protected onRemove: () => void)`
+Принимает колбеки для событий модели и DOM элемент карточки.
 
 #### Поля
 `imageElement: HTMLImageElement`
@@ -367,15 +361,15 @@ interface IBuyer {
 Обновляет состояние кнопки в зависимости от наличия товара в корзине и наличия цены.
 
 `handleButtonClick(): void`
-Генерирует событие добавления или удаления из корзины в зависимости от наличия товара в коризне (`card:add`, `card:remove`).
+Вызывает callback действия с товаром (добавление или удаление).
 
 
 ### Класс CardBasket
 Отрисовка карточки в корзине.
 
 #### Конструктор
-`constructor(events: IEvents, container: HTMLElement)`
-Принимает объект для генерации событий и DOM элемент карточки.
+`constructor(container: HTMLElement, protected onDelete: () => void)`
+Принимает callback функцию удаления товара, которую передает презентер, и DOM элемент карточки.
 
 #### Поля
 `indexElement: HTMLElement`
@@ -389,7 +383,7 @@ interface IBuyer {
 Устанавливает порядковый номер товара.
 
 `removeCard(): void`
-Генерация события удаления товара из корзины (`card:remove`).
+Вызывает переданный callback удаления товара..
 
 
 ### Класс Form
@@ -614,6 +608,9 @@ interface IBuyer {
 ### События презентера
 `card:open`
 Генерируется при клике на карточку в каталоге. Используется для открытия превью.
+
+`preview:action`
+Генерируется при нажатии кнопки в полной карточке товара. Используется для добавления или удаления выбранного товара из корзины.
 
 `card:add`
 Генерируется при нажатии кнопки покупки товара. Используется для добавления товара в корзину.

@@ -40,21 +40,38 @@ const cardFullTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const orderFormTemplate = ensureElement<HTMLTemplateElement>('#order');
-let orderForm: OrderForm | null = null;
 const contactsFormTemplate = ensureElement<HTMLTemplateElement>('#contacts');
-let contactsForm: ContactsForm | null = null;
 const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
 const header = new Header(events, headerContainer);
 const gallery = new Gallery(galleryContainer);
 const modal = new Modal(events, modalContainer)
 
+const basketElement = cloneTemplate<HTMLElement>(basketTemplate);
+const basket = new Basket(events, basketElement);
+
+basket.setItems([]);
+basket.setTotalPrice(0);
+basket.setButtonState(false);
+
+const orderFormElement = cloneTemplate<HTMLElement>(orderFormTemplate);
+const orderForm = new OrderForm(events, orderFormElement);
+
+const contactsFormElement = cloneTemplate<HTMLElement>(contactsFormTemplate);
+const contactsForm = new ContactsForm(events, contactsFormElement);
+
+const successElement = cloneTemplate<HTMLElement>(successTemplate);
+const success = new Success(events, successElement);
+
+const fullCardElement = cloneTemplate<HTMLElement>(cardFullTemplate);
+const fullCard = new CardFull(fullCardElement, () => events.emit('card:action'));
+
 function renderCatalog(): void {
   const products = catalog.getProducts();
 
   const cards = products.map((product) => {
     const cardElement = cloneTemplate<HTMLElement>(cardCatalogTemplate);
-    const card = new CardCatalog(events, cardElement);
+    const card = new CardCatalog(cardElement, () => events.emit('card:open', { id: product.id }));
 
     return card.render({
       ...product,
@@ -79,19 +96,17 @@ function renderPreviewCard(): void {
   if (!product) {
     return;
   }
-  const cardElement = cloneTemplate<HTMLElement>(cardFullTemplate);
-  const card = new CardFull(events, cardElement);
 
-  const renderedCard = card.render({
+  fullCard.render({
     ...product,
     image: `${CDN_URL}${product.image}`
   })
 
   const hasPrice = product.price !== null;
   const inCart = cart.hasProduct(product.id);
-  card.setButtonState(inCart, hasPrice);
+  fullCard.setButtonState(inCart, hasPrice);
 
-  modal.setContent(renderedCard);
+  modal.setContent(fullCard.render());
   modal.open();
 }
 
@@ -117,57 +132,71 @@ function removeFromCart(id: string): void {
   modal.close()
 }
 
-function openBasket(): void {
+function cardAction(): void {
+  const product = catalog.getSelectedProduct();
+
+  if (!product) {
+    return;
+  }
+
+  if (cart.hasProduct(product.id)) {
+    cart.removeProduct(product);
+  } else {
+    cart.addProduct(product);
+  }
+
+  modal.close();
+}
+
+function updateBasket(): void {
   const products = cart.getProducts();
 
   const renderedCards = products.map((product, index) => {
     const cardElement = cloneTemplate<HTMLElement>(cardBasketTemplate);
-    const card = new CardBasket(events, cardElement);
+
+    const card = new CardBasket(
+      cardElement,
+      () => events.emit('card:remove', { id: product.id })
+    );
 
     return card.render({
-      ...product,
+      title: product.title,
+      price: product.price,
       index: index + 1
     });
   });
 
-  const basketElement = cloneTemplate<HTMLElement>(basketTemplate);
-  const basket = new Basket(events, basketElement);
-
   basket.setItems(renderedCards);
-  basket.setTotalPrice(cart.getTotalPrice())
-  basket.setButtonState(cart.getCount() > 0)
+  basket.setTotalPrice(cart.getTotalPrice());
+  basket.setButtonState(cart.getCount() > 0);
+}
 
-  modal.setContent(basket.render());
+function openBasket(): void {
+  modal.setContent(basket.render()); 
   modal.open();
 }
 
 function updateOrderForm(): void {
-  
   const buyerData = buyer.getData();
   const errors = buyer.validate();
 
   const filteredErrors = Object.fromEntries(Object.entries(errors).filter(([key]) => key === 'payment' || key === 'address'));
 
-  const chosenPayment = Boolean(buyerData.payment);
-  const hasAddress = buyerData.address.trim() !== '';
-  const noErrors = Object.keys(filteredErrors).length === 0;
-  const canContinue = chosenPayment && hasAddress && noErrors;
-
-  if (orderForm) {
-    orderForm.showErrors(filteredErrors);
-    orderForm.setButtonState(canContinue);
+  if (buyerData.payment) {
+    orderForm.payment = buyerData.payment;
   }
+  orderForm.address = buyerData.address;
+
+  const canContinue = Object.keys(filteredErrors).length === 0;
+
+  orderForm.showErrors(filteredErrors);
+  orderForm.setButtonState(canContinue);
 }
 
 function openOrderForm() {
-  const orderFormElement = cloneTemplate<HTMLElement>(orderFormTemplate);
-  orderForm = new OrderForm(events, orderFormElement);
-
-  const buyerData = buyer.getData();
-
   const renderedForm = orderForm.render({
-    payment: buyerData.payment,
-    address: buyerData.address
+    payment: undefined,
+    address: ''
   })
 
   updateOrderForm();
@@ -182,26 +211,19 @@ function updateContactsForm(): void {
 
   const filteredErrors = Object.fromEntries(Object.entries(errors).filter(([key]) => key === 'email' || key === 'phone'));
 
-  const hasEmail = buyerData.email.trim() !== '';
-  const hasPhone = buyerData.phone.trim() !== '';
-  const noErrors = Object.keys(filteredErrors).length === 0;
-  const canPurchase = hasEmail && hasPhone && noErrors;
+  contactsForm.email = buyerData.email;
+  contactsForm.phone = buyerData.phone;
 
-  if (contactsForm) {
-    contactsForm.showErrors(filteredErrors);
-    contactsForm.setButtonState(canPurchase);
-  }
+  const canPurchase = Object.keys(filteredErrors).length === 0;
+
+  contactsForm.showErrors(filteredErrors);
+  contactsForm.setButtonState(canPurchase);
 }
 
 function openContactsForm() {
-  const contactsFormElement = cloneTemplate<HTMLElement>(contactsFormTemplate);
-  contactsForm = new ContactsForm(events, contactsFormElement);
-
-  const buyerData = buyer.getData();
-
   const renderedForm = contactsForm.render({
-    email: buyerData.email,
-    phone: buyerData.phone
+    email: '',
+    phone: ''
   })
 
   updateContactsForm();
@@ -211,13 +233,13 @@ function openContactsForm() {
 }
 
 async function submitOrder(): Promise<void> {
-  const products = cart.getProducts().map((item) => item.id);
+  const products = cart.getProducts();
   const buyerData = buyer.getData();
   const total = cart.getTotalPrice();
 
   const orderData = {
     ...buyerData,
-    items: products,
+    items: products.map((item) => item.id),
     total
   }
 try {
@@ -226,10 +248,7 @@ try {
   cart.clear();
   buyer.clear();
 
-  const successFormElement = cloneTemplate<HTMLElement>(successTemplate);
-  const successForm = new Success(events, successFormElement);
-
-  const renderedSuccess = successForm.render({
+  const renderedSuccess = success.render({
     total: response.total
   })
 
@@ -245,7 +264,7 @@ events.on('catalog:changed', renderCatalog);
 
 events.on('preview:changed', renderPreviewCard);
 
-events.on('cart:changed', updateHeaderCounter);
+events.on('cart:changed', () => {updateHeaderCounter(); updateBasket()});
 
 events.on('buyer:changed', () => {
   updateOrderForm(); 
@@ -269,6 +288,8 @@ events.on<{ id: string }>('card:add', (data) => {
 events.on<{ id: string }>('card:remove', (data) => {
   removeFromCart(data.id);
 });
+
+events.on('card:action', cardAction)
 
 events.on('basket:open', openBasket);
 
