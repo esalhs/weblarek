@@ -137,9 +137,6 @@ interface IBuyer {
 `products: IProduct[]`
 массив всех товаров, полученных с сервера.
 
-`products: IProduct[]`
-массив всех товаров, полученных с сервера.
-
 #### Методы
 `setProducts(products: IProduct[]): void`
 сохраняет массив товаров, полученный с сервера.
@@ -246,7 +243,7 @@ interface IBuyer {
 `fetchProducts(): Promise<{ items: IProduct[] }>`
 Выполняет GET-запрос к /product/ и возвращает объект с массивом товаров.
 
-`sendOrder(orderData: { buyer: IBuyer; items: IProduct[] }): Promise<object>`
+`sendOrder(orderData: IOrderRequest): Promise<IOrderResponse>`
 Выполняет POST-запрос к /order/, передаёт данные о покупателе и товарах, возвращает объект подтверждения покупки.
 
 
@@ -537,7 +534,7 @@ interface IBuyer {
 `setButtonState(enabled: boolean): void`
 Активация или деактивация кнопки оформления в зависимости от наличия товаров в корзине.
 
-`setItems({ items }: IBasket): void`
+`setItems(items: HTMLElement[]): void`
 Отображает товары в корзине.
 
 `render(): HTMLElement`
@@ -644,8 +641,3 @@ interface IBuyer {
 
 `modal:close`
 Генерируется при нажатии на крестик или клике вне модального окна. Используется для закрытия модального окна.
-
-
-## Установка и запуск
-`npm install ` 
-`npm run dev`
