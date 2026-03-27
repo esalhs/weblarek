@@ -35,7 +35,13 @@ export class CardCatalog extends Card<ICardCatalog> {
     const className = categoryMap[value as keyof typeof categoryMap];
     this.categoryElement.classList.add(className);
   }
+
   handleClick(): void {
-    this.events.emit('card:open', {id: this.id})
+    const id = this.container.dataset.id;
+    if (!id) {
+      return;
+    }
+
+    this.events.emit('card:open', { id })
   }
 }

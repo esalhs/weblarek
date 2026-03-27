@@ -1,4 +1,5 @@
 import { IBuyer, TPayment } from '../../types';
+import { IEvents } from '../base/Events';
 
 export class BuyerModel {
 
@@ -7,7 +8,7 @@ export class BuyerModel {
   private email: string;
   private phone: string;
 
-  constructor() {
+  constructor(protected events: IEvents) {
     this.payment = null;
     this.address = '';
     this.email = '';
@@ -30,6 +31,8 @@ export class BuyerModel {
     if (data.phone !== undefined) {
       this.phone = data.phone;
     }
+
+    this.events.emit('buyer:changed');
   }
 
   getData(): IBuyer {
@@ -46,6 +49,7 @@ export class BuyerModel {
     this.address = '';
     this.email = '';
     this.phone = '';
+    this.events.emit('buyer:changed');
   }
 
   validate(): Record<string, string> {

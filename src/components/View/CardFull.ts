@@ -14,7 +14,6 @@ export class CardFull extends Card<ICardFull> {
   protected categoryElement: HTMLElement;
   protected descriptionElement: HTMLElement;
   protected cardButtonElement: HTMLButtonElement;
-  protected inCart: boolean = false;
 
   constructor(protected events: IEvents, container: HTMLElement) {
     super(container);
@@ -49,7 +48,7 @@ export class CardFull extends Card<ICardFull> {
   }
 
   setButtonState(inCart: boolean, hasPrice: boolean): void {
-    this.inCart = inCart;
+    this.container.dataset.inCart = String(inCart);
 
     if (!hasPrice) {
       this.cardButtonElement.textContent = "Недоступно";
@@ -62,10 +61,17 @@ export class CardFull extends Card<ICardFull> {
   }
 
   handleButtonClick(): void {
-    if (this.inCart) {
-      this.events.emit('card:remove', {id: this.id})
+    const id = this.container.dataset.id;
+    if (!id) {
+      return;
+    }
+
+    const inCart = this.container.dataset.inCart === 'true';
+
+    if (inCart) {
+      this.events.emit('card:remove', { id })
     } else {
-      this.events.emit('card:add', {id: this.id})
+      this.events.emit('card:add', { id })
     }
   }
 }

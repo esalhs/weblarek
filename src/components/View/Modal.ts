@@ -33,8 +33,11 @@ export class Modal extends Component<HTMLElement>{
     this.events.emit('modal:close');
   }
 
-  render(content: HTMLElement): HTMLElement {
+  setContent(content: HTMLElement): void {
     this.contentElement.replaceChildren(content);
-    return this.contentElement
+  }
+
+  render(): HTMLElement {
+    return this.container
   }
 }

@@ -33,14 +33,15 @@ export class Basket extends Component<IBasket> {
     this.orderButton.disabled = !enabled
   }
 
-  render({ items }: IBasket): HTMLElement {
+  setItems(items: HTMLElement[]): void {
     if (items.length === 0) {
-      this.itemList.replaceChildren();
-      this.itemList.textContent = "Корзина пуста"
+      this.itemList.textContent = ''
     } else {
       this.itemList.replaceChildren(...items)
     }
+  }
 
+  render(): HTMLElement {
     return this.container
   }
 }

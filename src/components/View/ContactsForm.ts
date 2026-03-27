@@ -2,7 +2,7 @@ import { ensureElement } from "../../utils/utils";
 import { IEvents } from "../base/Events";
 import { Form } from "./Form";
 
-interface IContactsForm {
+export interface IContactsForm {
   email: string;
   phone: string
 }
@@ -20,6 +20,15 @@ export class ContactsForm extends Form<IContactsForm> {
     this.emailElement.addEventListener('input', () => this.handleInput());
     this.phoneElement.addEventListener('input', () => this.handleInput());
   }
+
+  set email(value: string) {
+    this.emailElement.value = value;
+  }
+
+  set phone(value: string) {
+    this.phoneElement.value = value;
+  }
+
   handleInput(): void {
     this.events.emit('contacts:change', {email: this.emailElement.value, phone: this.phoneElement.value});
   }

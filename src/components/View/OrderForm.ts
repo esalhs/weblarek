@@ -3,7 +3,7 @@ import { ensureAllElements, ensureElement } from "../../utils/utils";
 import { IEvents } from "../base/Events";
 import { Form } from "./Form";
 
-interface IOrderForm {
+export interface IOrderForm {
   payment: TPayment;
   address: string
 }
@@ -21,6 +21,19 @@ export class OrderForm extends Form<IOrderForm> {
     this.paymentButtons.forEach(button => 
       button.addEventListener('click', () => this.selectPayment(button.name as TPayment)));
     this.addressElement.addEventListener('input', () => this.handleInput())
+  }
+
+  set payment(method: TPayment) {
+    this.paymentButtons.forEach((button) => {
+      button.classList.remove('button_alt-active');
+      if (button.name === method) {
+        button.classList.add('button_alt-active')
+      }
+    })
+  }
+
+  set address(value: string) {
+    this.addressElement.value = value
   }
 
   selectPayment(method: TPayment): void {

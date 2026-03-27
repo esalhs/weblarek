@@ -24,6 +24,10 @@ export class CardBasket extends Card<ICardBasket> {
   }
 
   removeCard(): void {
-    this.events.emit('card:remove', {id: this.id})
+    const id = this.container.dataset.id;
+    if (!id) {
+      return;
+    }
+    this.events.emit('card:remove', { id })
   }
 }
